@@ -277,16 +277,15 @@
                 const typingIndicator = this.showTypingIndicator();
 
                 try {
-                    // Send to n8n webhook
+                    // Create FormData instead of JSON to avoid preflight requests
+                    const formData = new FormData();
+                    formData.append('message', message);
+                    formData.append('timestamp', new Date().toISOString());
+
+                    // Send to n8n webhook using FormData
                     const response = await fetch(this.webhookUrl, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: message,
-                            timestamp: new Date().toISOString()
-                        })
+                        body: formData  // Send as FormData instead of JSON
                     });
 
                     if (!response.ok) {
