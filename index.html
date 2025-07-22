@@ -243,7 +243,7 @@
                 this.chatInput = document.getElementById('chatInput');
                 this.sendButton = document.getElementById('sendButton');
                 
-                // Your n8n webhook URL from the image
+                // Your n8n webhook URL
                 this.webhookUrl = 'https://jascas007.app.n8n.cloud/webhook-test/wedding-chat';
                 
                 this.init();
@@ -293,36 +293,14 @@
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
 
-                    const result = await response.json();
+                    // Changed from response.json() to response.text() since n8n returns plain text now
+                    const result = await response.text();
                     
                     // Remove typing indicator
                     this.removeTypingIndicator(typingIndicator);
                     
-                    // Extract the bot response from n8n result
-                    let botResponse = 'I apologize, but I encountered an issue processing your request.';
-                    
-                    // Handle different possible response structures from n8n
-                    if (result && typeof result === 'object') {
-                        // Try different possible paths where the AI response might be
-                        if (result.response) {
-                            botResponse = result.response;
-                        } else if (result.message) {
-                            botResponse = result.message;
-                        } else if (result.output) {
-                            botResponse = result.output;
-                        } else if (result.data && result.data.response) {
-                            botResponse = result.data.response;
-                        } else if (typeof result === 'string') {
-                            botResponse = result;
-                        } else {
-                            // If it's an object, try to find any text response
-                            const values = Object.values(result);
-                            const textResponse = values.find(val => typeof val === 'string' && val.length > 10);
-                            if (textResponse) {
-                                botResponse = textResponse;
-                            }
-                        }
-                    }
+                    // The result is now the direct AI response as plain text
+                    const botResponse = result.trim() || 'I apologize, but I encountered an issue processing your request.';
 
                     this.addMessage(botResponse, 'bot');
 
